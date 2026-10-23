@@ -32,7 +32,10 @@ final readonly class ReservationService
         });
     }
 
-    /** @param array<string, mixed> $data @return array<string, mixed> */
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
     public function changeStatus(int $id, array $data): array
     {
         $errors = [];
@@ -47,7 +50,7 @@ final readonly class ReservationService
         if (array_diff(array_keys($data), ['estado', 'version']) !== []) {
             $errors['_form'] = 'Hay campos no admitidos.';
         }
-        if ($errors !== [] || $status === null) {
+        if ($errors !== []) {
             throw new HttpException(400, 'Revisa el cambio de estado.', $errors);
         }
         return $this->transaction(function () use ($id, $status, $version): array {
@@ -71,7 +74,10 @@ final readonly class ReservationService
         });
     }
 
-    /** @param callable(): array<string, mixed> $operation @return array<string, mixed> */
+    /**
+     * @param callable(): array<string, mixed> $operation
+     * @return array<string, mixed>
+     */
     private function transaction(callable $operation): array
     {
         $this->pdo->beginTransaction();

@@ -36,7 +36,7 @@ final readonly class ReservationRepository
         $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
         $statement->execute();
         return [
-            'data' => array_map($this->normalize(...), $statement->fetchAll()),
+            'data' => array_values(array_map($this->normalize(...), $statement->fetchAll())),
             'meta' => ['total' => $total, 'page' => $page, 'per_page' => $filter->perPage, 'last_page' => $lastPage],
             'summary' => ['total' => $total, 'pendientes' => (int) $summary['pendientes'],
                 'confirmadas' => (int) $summary['confirmadas'], 'canceladas' => (int) $summary['canceladas'],
@@ -58,12 +58,12 @@ final readonly class ReservationRepository
     {
         $statement = $this->pdo->prepare('SELECT * FROM reserva_evento WHERE reserva_id = ? ORDER BY fecha_creacion, id');
         $statement->execute([$id]);
-        return array_map(static function (array $row): array {
+        return array_values(array_map(static function (array $row): array {
             $row['id'] = (int) $row['id'];
             $row['reserva_id'] = (int) $row['reserva_id'];
             $row['fecha_creacion'] = str_replace(' ', 'T', $row['fecha_creacion']) . 'Z';
             return $row;
-        }, $statement->fetchAll());
+        }, $statement->fetchAll()));
     }
 
     public function insert(ReservationInput $input): int
@@ -111,7 +111,10 @@ final readonly class ReservationRepository
         return [$clauses === [] ? '' : 'WHERE ' . implode(' AND ', $clauses), $parameters];
     }
 
-    /** @param array<string, mixed> $row @return array<string, mixed> */
+    /**
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
     private function normalize(array $row): array
     {
         $row['id'] = (int) $row['id'];

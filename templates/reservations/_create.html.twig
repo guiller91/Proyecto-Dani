@@ -1,0 +1,18 @@
+<dialog id="create-dialog" class="modal" aria-labelledby="create-title">
+    <form id="create-form" novalidate>
+        <div class="modal-header"><div><p class="eyebrow">UNA NUEVA ESTANCIA</p><h2 id="create-title">Nueva reserva<span class="heading-dot">.</span></h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Cerrar formulario">×</button></div>
+        <p class="modal-intro">Completa los datos. La reserva se creará como pendiente.</p>
+        <p class="required-note">Todos los campos son obligatorios salvo las notas.</p>
+        <div id="create-error" class="form-error" role="alert" hidden></div>
+        <div class="form-grid">
+            <div><label for="guest-name">Nombre del huésped</label><input id="guest-name" name="nombre_huesped" autocomplete="name" required maxlength="120" placeholder="Nombre y apellidos" aria-describedby="error-nombre_huesped"><span class="field-error" id="error-nombre_huesped"></span></div>
+            <div><label for="guest-email">Email</label><input id="guest-email" type="email" name="email_huesped" autocomplete="email" required maxlength="254" placeholder="nombre@ejemplo.com" aria-describedby="error-email_huesped"><span class="field-error" id="error-email_huesped"></span></div>
+            <div class="full-width"><label for="accommodation">Alojamiento</label><input id="accommodation" name="nombre_alojamiento" required maxlength="160" placeholder="Nombre del alojamiento" aria-describedby="error-nombre_alojamiento"><span class="field-error" id="error-nombre_alojamiento"></span></div>
+            <div><label for="check-in">Entrada</label><input id="check-in" type="date" name="fecha_entrada" required min="1000-01-01" max="9999-12-31" aria-describedby="error-fecha_entrada"><span class="field-error" id="error-fecha_entrada"></span></div>
+            <div><label for="check-out">Salida</label><input id="check-out" type="date" name="fecha_salida" required min="1000-01-01" max="9999-12-31" aria-describedby="error-fecha_salida"><span class="field-error" id="error-fecha_salida"></span></div>
+            <div class="full-width"><label for="amount">Importe total (€)</label><input id="amount" type="number" name="importe" required min="0" max="99999999.99" step="0.01" inputmode="decimal" placeholder="0,00" aria-describedby="error-importe"><span class="field-error" id="error-importe"></span></div>
+            <div class="full-width"><label for="notes">Notas <span class="optional">opcional</span></label><textarea id="notes" name="notas" rows="3" maxlength="2000" placeholder="Peticiones especiales, hora de llegada…" aria-describedby="error-notas"></textarea><span class="field-error" id="error-notas"></span></div>
+        </div>
+        <div class="modal-actions"><button class="button button-secondary" type="button" data-close-dialog>Volver</button><button id="create-submit" class="button button-primary" type="submit">Crear reserva <span aria-hidden="true">→</span></button></div>
+    </form>
+</dialog>

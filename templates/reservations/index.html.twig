@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+{% block title %}Tus reservas{% endblock %}
+{% block content %}
+<section id="reservations-page" aria-labelledby="page-title">
+    <div class="page-heading"><div><p class="eyebrow">TU DÍA A DÍA, EN ORDEN</p><h1 id="page-title">Tus reservas<span class="heading-dot">.</span></h1><p class="subtitle">Un lugar para gestionar cada estancia, de principio a fin.</p></div><button class="button button-primary" id="open-create" type="button"><span aria-hidden="true">＋</span> Nueva reserva</button></div>
+    <div class="stats" aria-label="Resumen de las reservas filtradas">
+        <article class="stat-card"><div class="stat-top"><h2>Total de reservas</h2><span class="stat-icon" aria-hidden="true">▦</span></div><div class="stat-value" id="stat-total">{{ summary.total }}</div><p>En tu selección actual</p></article>
+        <article class="stat-card"><div class="stat-top"><h2>Confirmadas</h2><span class="stat-icon green" aria-hidden="true">✓</span></div><div class="stat-value" id="stat-confirmed">{{ summary.confirmadas }}</div><p><span class="mini-dot green-dot"></span> Todo listo para su llegada</p></article>
+        <article class="stat-card"><div class="stat-top"><h2>Pendientes</h2><span class="stat-icon amber" aria-hidden="true">◷</span></div><div class="stat-value" id="stat-pending">{{ summary.pendientes }}</div><p><span class="mini-dot amber-dot"></span> A la espera de confirmación</p></article>
+        <article class="stat-card stat-money"><div class="stat-top"><h2>Importe activo</h2><span class="stat-icon" aria-hidden="true">€</span></div><div class="stat-value" id="stat-amount">{{ summary.importe_activo|number_format(2, ',', '.') }} <span>€</span></div><p>Sin incluir reservas canceladas</p></article>
+    </div>
+    <section class="reservations-panel" aria-labelledby="list-title">
+        <div class="panel-heading"><div><h2 id="list-title">Todas las reservas <span id="result-count" class="count-pill">{{ meta.total }}</span></h2><p>Los detalles que importan, siempre a mano.</p></div><span id="loading-indicator" class="loading-label" role="status" hidden><span class="spinner" aria-hidden="true"></span> Actualizando…</span></div>
+        <form id="filters" class="filters" action="/" method="get">
+            <div class="filter-search"><label for="search">Buscar huésped</label><div class="input-icon"><span aria-hidden="true">⌕</span><input id="search" type="search" name="q" placeholder="Nombre del huésped…" maxlength="120" value="{{ filters.search }}"></div></div>
+            <div><label for="status">Estado</label><select name="estado" id="status"><option value="">Todos los estados</option>{% for status in ['pendiente','confirmada','cancelada'] %}<option value="{{ status }}"{% if filters.status and filters.status.value == status %} selected{% endif %}>{{ status|capitalize }}</option>{% endfor %}</select></div>
+            <div><label for="from">Estancias desde</label><input type="date" id="from" name="desde" value="{{ filters.from }}" min="1000-01-01" max="9999-12-31"></div>
+            <div><label for="to">Hasta</label><input type="date" id="to" name="hasta" value="{{ filters.to }}" min="1000-01-01" max="9999-12-31"></div>
+            <button class="button button-secondary filter-submit" type="submit">Filtrar <span aria-hidden="true">↓</span></button>
+            <button class="reset-button" id="reset-filters" type="button" title="Limpiar filtros" aria-label="Limpiar filtros">↺</button>
+        </form>
+        <p class="filter-hint">El intervalo muestra las estancias que coinciden con las fechas seleccionadas.</p>
+        <div id="list-error" class="list-error" role="alert" hidden></div>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Tabla de reservas, desplazable horizontalmente">
+            <table><caption class="sr-only">Reservas de alojamiento</caption><thead><tr><th scope="col">Reserva</th><th scope="col">Huésped</th><th scope="col">Alojamiento</th><th scope="col">Entrada <span aria-hidden="true">→</span> Salida</th><th scope="col">Estado</th><th scope="col" class="amount">Importe</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody id="reservation-rows">{% include 'reservations/_rows.html.twig' %}</tbody></table>
+        </div>
+        <div class="pagination"><p id="pagination-summary">{% if meta.total %}Mostrando {{ (meta.page - 1) * meta.per_page + 1 }}–{{ min(meta.page * meta.per_page, meta.total) }} de {{ meta.total }} reservas{% else %}0 reservas{% endif %}</p><nav aria-label="Paginación"><button id="previous-page" type="button" class="page-button"{% if meta.page <= 1 %} disabled{% endif %} aria-label="Página anterior">←</button><span id="page-number" data-page="{{ meta.page }}">{{ meta.page }} / {{ meta.last_page }}</span><button id="next-page" type="button" class="page-button"{% if meta.page >= meta.last_page %} disabled{% endif %} aria-label="Página siguiente">→</button></nav></div>
+    </section>
+    <div class="bottom-note"><span aria-hidden="true">◇</span> Menos gestiones. Más hospitalidad.</div>
+</section>
+{% endblock %}
+{% block dialogs %}{% include 'reservations/_create.html.twig' %}{% endblock %}

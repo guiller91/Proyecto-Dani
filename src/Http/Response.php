@@ -8,7 +8,10 @@ final readonly class Response
     /** @param array<string, string> $headers */
     public function __construct(public string $body, public int $status = 200, public array $headers = []) {}
 
-    /** @param array<string, mixed> $data @param array<string, string> $headers */
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, string> $headers
+     */
     public static function json(array $data, int $status = 200, array $headers = []): self
     {
         return new self(json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),

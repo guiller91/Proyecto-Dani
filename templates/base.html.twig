@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <meta name="app-timezone" content="{{ app_timezone }}">
+    <meta name="description" content="Gestión de reservas de alojamiento. Todas tus estancias, en un solo lugar.">
+    <title>{% block title %}Reservas{% endblock %} · Estancia</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/app.css">
+    <script src="/assets/app.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Saltar al contenido</a>
+<header class="topbar">
+    <a class="brand" href="/" aria-label="Estancia, inicio"><span class="brand-icon" aria-hidden="true">e<span>·</span></span>estancia<span class="brand-period">.</span></a>
+    <nav aria-label="Navegación principal"><a class="nav-link active" href="/" aria-current="page"><span aria-hidden="true">▦</span> Reservas</a></nav>
+    <span class="workspace-label"><span class="workspace-dot"></span> Espacio de gestión <span class="workspace-avatar" aria-hidden="true">E</span></span>
+</header>
+<main id="main" class="main" tabindex="-1">{% block content %}{% endblock %}</main>
+<footer class="footer"><span>estancia<span class="brand-period">.</span> <span class="footer-divider">/</span> Cada estancia, bien cuidada.</span><span>Gestión de alojamientos</span></footer>
+<div id="notification" class="notification" role="status" aria-live="polite" hidden></div>
+<dialog id="confirm-dialog" class="modal modal-small" aria-labelledby="confirm-title">
+    <form method="dialog" id="confirm-form">
+        <div class="modal-symbol danger-symbol" aria-hidden="true">!</div>
+        <h2 id="confirm-title">¿Cancelar esta reserva?</h2>
+        <p id="confirm-description">La reserva quedará cancelada y el cambio se guardará en su historial. Esta acción no se puede deshacer.</p>
+        <p id="confirm-error" class="form-error" role="alert" hidden></p>
+        <div class="modal-actions"><button class="button button-secondary" value="close" type="button" data-close-dialog>Volver</button><button class="button button-danger" id="confirm-action" type="submit">Sí, cancelar reserva</button></div>
+    </form>
+</dialog>
+{% block dialogs %}{% endblock %}
+</body>
+</html>

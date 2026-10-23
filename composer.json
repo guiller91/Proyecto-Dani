@@ -23,5 +23,5 @@
     "analyse": "phpstan analyse --memory-limit=512M",
     "check": ["@test", "@analyse"]
   },
-  "config": {"sort-packages": true, "allow-plugins": {}}
+  "config": {"sort-packages": true, "platform": {"php": "8.3.0"}, "allow-plugins": {}}
 }

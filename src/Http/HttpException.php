@@ -5,7 +5,10 @@ namespace App\Http;
 
 final class HttpException extends \RuntimeException
 {
-    /** @param array<string, string> $fields @param array<string, string> $headers */
+    /**
+     * @param array<string, string> $fields
+     * @param array<string, string> $headers
+     */
     public function __construct(
         public readonly int $status,
         string $message,

@@ -1,0 +1,13 @@
+{% for reservation in data %}
+    <tr>
+        <td><a class="reservation-code" href="/reservas/{{ reservation.id }}">#{{ '%04d'|format(reservation.id) }}</a></td>
+        <td><div class="guest-cell"><span class="avatar avatar-{{ reservation.id % 4 }}" aria-hidden="true">{{ reservation.nombre_huesped|slice(0,1)|upper }}</span><div><a class="guest-name" href="/reservas/{{ reservation.id }}">{{ reservation.nombre_huesped }}</a><span class="cell-secondary">{{ reservation.email_huesped }}</span></div></div></td>
+        <td><span class="accommodation-name">{{ reservation.nombre_alojamiento }}</span></td>
+        <td><span class="date-range">{{ reservation.fecha_entrada|date('d/m/y', false) }} <span aria-label="hasta">→</span> {{ reservation.fecha_salida|date('d/m/y', false) }}</span></td>
+        <td>{% include 'reservations/_badge.html.twig' with {status: reservation.estado} only %}</td>
+        <td class="amount">{{ reservation.importe|number_format(2, ',', '.') }} €</td>
+        <td class="row-actions"><a class="icon-button" href="/reservas/{{ reservation.id }}" aria-label="Ver reserva de {{ reservation.nombre_huesped }}" title="Ver detalle">↗</a>{% if reservation.estado != 'cancelada' %}<button class="icon-button cancel-button" type="button" data-cancel-id="{{ reservation.id }}" data-version="{{ reservation.version }}" data-guest="{{ reservation.nombre_huesped }}" aria-label="Cancelar reserva de {{ reservation.nombre_huesped }}" title="Cancelar reserva">×</button>{% endif %}</td>
+    </tr>
+{% else %}
+    <tr><td colspan="7"><div class="empty-state"><span aria-hidden="true">⌕</span><h3>No hay reservas que mostrar</h3><p>Prueba con otros filtros o crea tu primera reserva.</p></div></td></tr>
+{% endfor %}

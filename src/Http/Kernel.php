@@ -65,7 +65,9 @@ final readonly class Kernel
         if ($path === '/api/reservas') {
             return $method === 'GET' ? $this->controller->listing($request) : $this->controller->create($request);
         }
-        preg_match('#/reservas/(\d+)#', $path, $matches);
+        if (!preg_match('#/reservas/(\d+)#', $path, $matches)) {
+            throw new HttpException(404, 'No encontramos esta reserva.');
+        }
         $id = (int) $matches[1];
         if (str_ends_with($path, '/estado')) {
             return $this->controller->changeStatus($id, $request);

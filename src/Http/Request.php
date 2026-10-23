@@ -5,7 +5,10 @@ namespace App\Http;
 
 final readonly class Request
 {
-    /** @param array<string, mixed> $query @param array<string, string> $headers */
+    /**
+     * @param array<string, mixed> $query
+     * @param array<string, string> $headers
+     */
     public function __construct(
         public string $method,
         public string $path,
