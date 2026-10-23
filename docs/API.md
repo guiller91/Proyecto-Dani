@@ -25,6 +25,10 @@ Todos los parámetros son opcionales:
 | `q` | Nombre del huésped, coincidencia parcial literal, máximo 120 caracteres |
 | `page` | Entero de 1 a 100000; por defecto 1, se ajusta al último disponible |
 | `per_page` | Entero de 1 a 100; por defecto 10 |
+| `alojamiento` | Nombre exacto del alojamiento, hasta 160 caracteres |
+| `entrada` | Fecha exacta de entrada `AAAA-MM-DD` |
+| `salida` | Fecha exacta de salida `AAAA-MM-DD` |
+| `orden` | `recientes` (defecto), `entrada`, `salida`, `importe_desc`, `huesped` |
 
 Fechas reales `AAAA-MM-DD`, años 1000–9999. `desde <= hasta`. Orden por creación DESC e ID DESC.
 
@@ -120,7 +124,45 @@ Enviar la versión recibida en el último listado/detalle. Es un entero JSON obl
 | `409` | Versión obsoleta o transición incompatible |
 | `413` | JSON mayor de 16 KB |
 | `415` | Content-Type distinto de application/json |
+| `422` | Exportación superior a 5.000 reservas; acotar los filtros |
 | `500` | Fallo interno durante una operación |
 | `503` | Aplicación o conexión no disponible al arrancar |
 
-GET admite HEAD, sin cuerpo en la respuesta HTTP. No se ofrecen DELETE ni edición general. En errores de red tras una escritura, consultar la reserva/listado antes de repetir: no hay aún claves de idempotencia para creación.
+GET admite HEAD, sin cuerpo en la respuesta HTTP. No se ofrece DELETE. En errores de red tras una escritura, consultar la reserva/listado antes de repetir: no hay aún claves de idempotencia para creación.
+
+## Edición con historial
+
+`PATCH /api/reservas/42`: enviar todos los campos de creación y `version` como entero. Requiere cookie, token CSRF y JSON. Devuelve `200` y el detalle actualizado. No permite cambiar el estado por esta ruta. Una reserva cancelada o una versión obsoleta devuelve `409`. Los datos inválidos devuelven `400` con errores por campo.
+
+Si los datos cambian, aumenta la versión y se añade el evento `actualizada`. La descripción enumera los campos modificados; no copia valores personales anteriores. Guardar los mismos datos conserva versión e historial. La edición y su evento son atómicos.
+
+## Operaciones en lote
+
+`POST /api/reservas/lote`, con sesión y CSRF:
+
+```json
+{
+  "estado": "confirmada",
+  "reservas": [{"id": 42, "version": 1}, {"id": 43, "version": 2}]
+}
+```
+
+Entre 1 y 50 IDs únicos, enteros positivos, con versiones válidas. Destino `confirmada` o `cancelada`. Se bloquean las filas en orden de ID y se aplica una sola transacción. Si una falta, cambia de versión o no permite la transición, falla todo el lote (`404` o `409`). Un payload inválido devuelve `400` sin escrituras.
+
+Respuesta `200`: `{"data":[…detalles actualizados],"updated":2}`. `updated` cuenta las reservas procesadas, incluidos los no-ops cuyo estado ya coincidía con la versión actual. Cada cambio efectivo tiene su propio evento.
+
+## Exportación CSV
+
+`GET /api/reservas/exportar` admite los mismos filtros y orden que el listado. La paginación se ignora: exporta todas las coincidencias, hasta 5.000. Si hay más, devuelve `422` en JSON; nunca trunca silenciosamente. Respuesta correcta: `text/csv; charset=utf-8`, descarga `reservas.csv`, BOM UTF-8, separador `;`, comillas estándar y saltos CRLF.
+
+Los textos que comienzan por `=`, `+`, `-` o `@` (también tras espacios) reciben un apóstrofo para evitar que Excel/LibreOffice interprete fórmulas. El CSV contiene información de huéspedes: guardarlo en un destino adecuado.
+
+## Panel operativo
+
+`GET /api/overview` devuelve `data` con `total`, `pendientes`, `llegadas`, `salidas`, `alojados`, `importe_activo`, `alojamientos`; además `today` (`AAAA-MM-DD`) y `accommodations` (nombres de alojamiento). El día se calcula en `APP_TIMEZONE`. Llegadas y salidas cuentan solo confirmadas. `alojados` son confirmadas con entrada ≤ hoy < salida: es una previsión según calendario, no un registro de presencia física. Pendientes y volumen activo abarcan todas las fechas; el volumen excluye canceladas.
+
+## Agenda de movimientos
+
+`GET /api/agenda?desde=2028-06-10&hasta=2028-06-16`. Intervalo inclusivo de hasta 31 días; por defecto hoy y seis días posteriores. Excluye canceladas e incluye pendientes y confirmadas. Cada elemento de `data` incluye los campos de la reserva, `movimiento` (`entrada` o `salida`) y `dia`. Una reserva puede aparecer dos veces si ambos movimientos caen dentro del intervalo. Orden: día, tipo de movimiento e ID.
+
+`meta` contiene `total`, `truncated`, `desde`, `hasta`. Se devuelven como máximo 500 movimientos y se indica `truncated: true` si existen más. Un intervalo inválido devuelve `400`.

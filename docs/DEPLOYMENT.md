@@ -14,6 +14,8 @@ El destino debe ejecutar PHP 8.3+ y proporcionar MySQL/MariaDB o conectividad a 
 
 No publicar `tests/`, `.git/`, `.tools/`, `.env.test`, informes de pruebas ni credenciales administrativas.
 
+Al actualizar desde la primera versión, aplicar `database/migrations/002_reserva_actualizada.sql` o ejecutar `php bin/migrate.php` con credenciales de migración. Añade el tipo de evento de edición y conserva las reservas existentes. No reimportar el SQL inicial sobre una base en uso. Incluir `public/assets/inter-latin.woff2` en la entrega: la fuente se sirve desde el propio hosting.
+
 ## Contenedor en VPS o plataforma Docker
 
 El `Dockerfile` incluye Apache, PHP, extensiones y dependencias de producción. `compose.yaml` añade MariaDB persistente y la importación inicial. El origen local por defecto es `127.0.0.1:8080`.

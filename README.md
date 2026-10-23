@@ -2,7 +2,7 @@
 
 Aplicación de reservas de alojamiento para la prueba técnica de MisterPlan. PHP nativo, MySQL/MariaDB, Twig y JavaScript vanilla. Interfaz en español, renderizado inicial en servidor y operaciones asíncronas sobre una API JSON.
 
-La interfaz sigue el criterio de un registro de recepción: resumen compacto, tabla de datos, estados discretos y acciones explícitas. Utiliza tipografías del sistema y Georgia, sin fuentes remotas ni recursos externos.
+El espacio de trabajo incluye navegación lateral, indicadores operativos, agenda, tabla con selección múltiple y una vista rápida lateral. Utiliza la fuente Inter alojada en el propio proyecto, con su licencia en `docs/fonts/`, e iconos SVG. La aplicación no solicita fuentes ni recursos a servicios externos.
 
 **Repositorio:** [guiller91/Proyecto-Dani](https://github.com/guiller91/Proyecto-Dani)
 
@@ -31,6 +31,8 @@ docker compose start
 ```
 
 No borres el volumen si necesitas conservar reservas. Cambiar las contraseñas del `.env` no cambia las de una base de datos ya inicializada.
+
+**Actualizar una instalación existente:** esta versión añade el evento `actualizada` para registrar ediciones. Ejecutar `php bin/migrate.php` con una credencial de migración que tenga permiso `ALTER`, o importar `database/migrations/002_reserva_actualizada.sql`. No reimportar el fichero inicial ni borrar el volumen. En Docker, el comando es `docker compose exec app php bin/migrate.php` si el usuario dispone de ese permiso. El migrador detecta una base ya actualizada y no modifica las reservas. La aplicación sigue necesitando solo `SELECT`, `INSERT` y `UPDATE` durante su funcionamiento.
 
 ## Arranque local con PHP, MAMP o WAMP
 
@@ -78,6 +80,13 @@ Después de importar, el usuario de ejecución solo necesita `SELECT`, `INSERT` 
 ## Qué incluye
 
 - Listado paginado con filtros combinables por estado, coincidencia de estancia y nombre del huésped.
+- Filtro por alojamiento, fechas exactas de llegada/salida y ordenación por entrada, salida, huésped o importe. Selector de tamaño de página.
+- Vista rápida lateral con datos, notas, actividad y acciones; acceso a la ficha completa.
+- Edición de datos de reservas pendientes o confirmadas, con versión e historial. Las canceladas son de solo lectura.
+- Confirmación y cancelación de hasta 50 reservas seleccionadas en una transacción: si una ha cambiado, se revierte todo el lote.
+- Exportación CSV de todas las reservas de los filtros activos, hasta 5.000 registros, con protección frente a fórmulas de hoja de cálculo.
+- Agenda semanal de entradas y salidas, navegación por semanas y selección de fecha. Incluye pendientes y confirmadas; excluye canceladas.
+- Indicadores globales de llegadas/salidas confirmadas del día, estancias confirmadas en curso, pendientes y volumen activo. Los indicadores no cambian con los filtros de la tabla; el resumen inferior sí.
 - Creación, confirmación y cancelación, con estado y versión controlados en el servidor.
 - Historial persistente y transaccional: el cambio y su evento se confirman juntos o se revierten juntos.
 - Listado y detalle renderizados con Twig, plantilla base y parciales. No se usa `|raw`.
@@ -94,6 +103,8 @@ Después de importar, el usuario de ejecución solo necesita `SELECT`, `INSERT` 
 **Estados.** Toda reserva empieza `pendiente`. Se permite pendiente → confirmada, pendiente → cancelada y confirmada → cancelada. La cancelación es final. Repetir el mismo estado con la versión actual es un no-op: no aumenta versión ni duplica historial.
 
 **Concurrencia.** El cliente envía `version` al cambiar el estado. La transacción bloquea la fila con `SELECT … FOR UPDATE`, comprueba la versión y actualiza el estado y su evento. Una vista obsoleta obtiene `409` y debe actualizarse. Dos cambios basados en la misma versión no pueden sobrescribirse silenciosamente.
+
+La misma protección se aplica a la edición. Un cambio efectivo aumenta la versión y añade un evento `actualizada` con los nombres de los campos modificados; no duplica los valores personales en el historial. Guardar los mismos datos es un no-op. Los lotes bloquean las filas en orden de ID para reducir el riesgo de deadlocks y se confirman de forma atómica. La selección se limita a la página actual y se limpia al cambiar el listado.
 
 **Fechas.** Fechas reales `AAAA-MM-DD`, años 1000–9999 y salida estrictamente posterior a entrada. Se admiten estancias pasadas. El intervalo de una estancia es `[entrada, salida)`: la fecha de salida no es una noche ocupada. Los filtros representan días inclusivos: `salida > desde` y `entrada <= hasta`. Un único límite también es válido. No hay inventario de habitaciones ni comprobación de disponibilidad: el alojamiento es un nombre, no un recurso reservado de forma exclusiva.
 
@@ -118,8 +129,15 @@ Contrato completo y ejemplos en [docs/API.md](docs/API.md).
 | GET | `/api/reservas/{id}` | Reserva con historial |
 | POST | `/api/reservas` | Crear; devuelve `201` y `Location` |
 | PATCH | `/api/reservas/{id}/estado` | Confirmar o cancelar con control de versión |
+| PATCH | `/api/reservas/{id}` | Editar datos con versión e historial |
+| POST | `/api/reservas/lote` | Confirmar/cancelar una selección de hasta 50 reservas |
+| GET | `/api/reservas/exportar` | CSV de los filtros activos, hasta 5.000 reservas |
+| GET | `/api/overview` | Indicadores globales del día en la zona configurada |
+| GET | `/api/agenda` | Llegadas/salidas en un intervalo de hasta 31 días |
 
 Vistas HTML: `/` (también `/reservas`) y `/reservas/{id}`. Los filtros se reflejan en la URL y pueden compartirse. Sin JavaScript, el listado, el filtrado por envío del formulario y el detalle siguen disponibles; las escrituras requieren JS.
+
+La agenda representa movimientos previstos por las fechas de las reservas; no registra check-in/check-out físico ni disponibilidad de habitaciones. Su respuesta se limita a 500 movimientos y avisa explícitamente si el intervalo supera ese límite. Guía de uso en [docs/MANAGEMENT.md](docs/MANAGEMENT.md).
 
 ## Pruebas y calidad
 

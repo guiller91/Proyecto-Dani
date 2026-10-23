@@ -9,18 +9,18 @@ PHP **8.5.12**, MariaDB **11.4.5**, Windows. Base de datos de la aplicación y b
 | Comprobación | Resultado |
 | --- | --- |
 | Importación de `database/database.sql` | 16 reservas y sus eventos importados correctamente |
-| Sintaxis PHP | 25 ficheros correctos |
-| PHPUnit | 60 pruebas, 151 aserciones, sin fallos ni omisiones |
+| Sintaxis PHP | 29 ficheros correctos |
+| PHPUnit | 71 pruebas, 197 aserciones, sin fallos ni omisiones |
 | PHPStan | Nivel 8, sin errores ni baseline |
 | PHP CS Fixer | PSR-12, sin cambios pendientes |
-| Playwright | Flujos comprobados en escritorio y móvil; 7 escenarios por dispositivo |
-| axe | Sin infracciones detectadas de las etiquetas WCAG 2 A/AA y 2.1 AA en listado, formulario y detalle |
+| Playwright | Flujos comprobados en escritorio y móvil; 13 escenarios por dispositivo |
+| axe | Sin infracciones detectadas de las etiquetas WCAG 2 A/AA y 2.1 AA en listado, formulario, detalle, vista rápida, agenda y confirmación de lote |
 | Prettier | Sin cambios pendientes |
 | Composer audit | Sin avisos de vulnerabilidad en las dependencias instaladas |
 
 Se verificaron creación y estado inicial, validación de tipos/fechas/email/dinero, límites, rechazo de campos inesperados, filtros combinados, coincidencia de estancias, búsqueda literal de `%`/`_`, paginación, importes exactos y respuesta a IDs inexistentes.
 
-Tras la revisión de interfaz se repitieron los flujos de navegador y los controles de accesibilidad. El listado utiliza un resumen con separadores y una tabla sin avatares decorativos; el detalle y los formularios comparten la nueva tipografía y los controles. Una prueba adicional comprueba que el número de noches no varía por los cambios de horario de primavera y otoño.
+Tras ampliar el espacio de gestión se repitieron los flujos de navegador y los controles de accesibilidad. Se comprobaron edición desde la vista rápida, historial actualizado, confirmación/cancelación de una selección, ordenación y filtro por alojamiento, descarga real del CSV a través de varias páginas y exclusión de canceladas en la agenda. Las pruebas de integración comprueban también el rollback completo de un lote con una versión obsoleta, y el de una edición cuyo evento falla. La prueba de exportación verifica comillas, Unicode, saltos de línea y neutralización de fórmulas. La prueba de noches cubre los cambios de horario de primavera y otoño.
 
 Las pruebas de integración introducen un fallo real mediante un trigger en la base de pruebas: tanto la creación como el cambio de estado se revierten si no puede guardarse el evento. También comprueban rechazo de una versión obsoleta, ausencia de eventos duplicados y sanitización de errores de base de datos.
 
