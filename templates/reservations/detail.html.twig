@@ -3,16 +3,86 @@
 {% block content %}
 <section id="detail-page" data-id="{{ reservation.id }}" data-version="{{ reservation.version }}" aria-labelledby="page-title">
     <a href="/" class="back-link">← Volver a reservas</a>
-    <div class="page-heading detail-heading"><div><p class="eyebrow">CADA DETALLE CUENTA</p><h1 id="page-title">Reserva <span class="muted-heading">#{{ '%04d'|format(reservation.id) }}</span><span class="heading-dot">.</span></h1><p class="subtitle">Creada el {{ reservation.fecha_creacion|date('d/m/Y') }} a las {{ reservation.fecha_creacion|date('H:i') }} · {{ app_timezone }}</p></div><div id="detail-status">{% include 'reservations/_badge.html.twig' with {status: reservation.estado} only %}</div></div>
+    <div class="page-heading detail-heading">
+        <div>
+            <p class="eyebrow">CADA DETALLE CUENTA</p>
+            <h1 id="page-title">Reserva <span class="muted-heading">#{{ '%04d'|format(reservation.id) }}</span><span class="heading-dot">.</span></h1>
+            <p class="subtitle">Creada el {{ reservation.fecha_creacion|date('d/m/Y') }} a las {{ reservation.fecha_creacion|date('H:i') }} · {{ app_timezone }}</p>
+        </div>
+        <div id="detail-status">
+            {% include 'reservations/_badge.html.twig' with {status: reservation.estado} only %}
+        </div>
+    </div>
     <div class="detail-layout">
         <div class="detail-main">
-            <article class="detail-card"><div class="detail-card-heading"><span class="section-icon" aria-hidden="true">⌂</span><h2>La estancia</h2></div><h3 class="stay-name">{{ reservation.nombre_alojamiento }}</h3><div class="stay-dates"><div><span class="detail-label">ENTRADA</span><strong>{{ reservation.fecha_entrada|date('d/m/Y', false) }}</strong></div><span class="stay-arrow" aria-hidden="true">→</span><div><span class="detail-label">SALIDA</span><strong>{{ reservation.fecha_salida|date('d/m/Y', false) }}</strong></div><div class="night-count">{{ date(reservation.fecha_salida).diff(date(reservation.fecha_entrada)).days }} noches</div></div><div class="detail-total"><span>Importe total</span><strong>{{ reservation.importe|number_format(2, ',', '.') }} €</strong></div></article>
-            <article class="detail-card"><div class="detail-card-heading"><span class="section-icon" aria-hidden="true">♙</span><h2>El huésped</h2></div><dl class="guest-details"><div><dt>Nombre completo</dt><dd>{{ reservation.nombre_huesped }}</dd></div><div><dt>Email de contacto</dt><dd><a href="mailto:{{ reservation.email_huesped }}">{{ reservation.email_huesped }}</a></dd></div></dl></article>
-            <article class="detail-card"><div class="detail-card-heading"><span class="section-icon" aria-hidden="true">≡</span><h2>Notas de la reserva</h2></div><p class="notes{% if not reservation.notas %} muted{% endif %}">{{ reservation.notas ?: 'No hay notas para esta reserva.' }}</p></article>
+            <article class="detail-card">
+                <div class="detail-card-heading">
+                    <span class="section-icon" aria-hidden="true">⌂</span>
+                    <h2>La estancia</h2>
+                </div>
+                <h3 class="stay-name">{{ reservation.nombre_alojamiento }}</h3>
+                <div class="stay-dates">
+                    <div>
+                        <span class="detail-label">ENTRADA</span>
+                        <strong>{{ reservation.fecha_entrada|date('d/m/Y', false) }}</strong>
+                    </div>
+                    <span class="stay-arrow" aria-hidden="true">→</span>
+                    <div>
+                        <span class="detail-label">SALIDA</span>
+                        <strong>{{ reservation.fecha_salida|date('d/m/Y', false) }}</strong>
+                    </div>
+                    <div class="night-count">{{ date(reservation.fecha_salida).diff(date(reservation.fecha_entrada)).days }} noches</div>
+                </div>
+                <div class="detail-total">
+                    <span>Importe total</span>
+                    <strong>{{ reservation.importe|number_format(2, ',', '.') }} €</strong>
+                </div>
+            </article>
+            <article class="detail-card">
+                <div class="detail-card-heading">
+                    <span class="section-icon" aria-hidden="true">♙</span>
+                    <h2>El huésped</h2>
+                </div>
+                <dl class="guest-details">
+                    <div><dt>Nombre completo</dt><dd>{{ reservation.nombre_huesped }}</dd></div>
+                    <div><dt>Email de contacto</dt><dd><a href="mailto:{{ reservation.email_huesped }}">{{ reservation.email_huesped }}</a></dd></div>
+                </dl>
+            </article>
+            <article class="detail-card">
+                <div class="detail-card-heading">
+                    <span class="section-icon" aria-hidden="true">≡</span>
+                    <h2>Notas de la reserva</h2>
+                </div>
+                <p class="notes{% if not reservation.notas %} muted{% endif %}">{{ reservation.notas ?: 'No hay notas para esta reserva.' }}</p>
+            </article>
         </div>
         <aside>
-            <section class="detail-card" aria-labelledby="history-title"><div class="detail-card-heading"><span class="section-icon" aria-hidden="true">◷</span><h2 id="history-title">Historial de la reserva</h2></div><ol id="event-timeline" class="timeline">{% for event in reservation.eventos %}<li class="timeline-{{ event.tipo }}"><span class="timeline-dot" aria-hidden="true"></span><strong>{{ event.tipo == 'creada' ? 'Reserva creada' : (event.tipo == 'confirmada' ? 'Reserva confirmada' : 'Reserva cancelada') }}</strong><p>{{ event.descripcion }}</p><time datetime="{{ event.fecha_creacion }}">{{ event.fecha_creacion|date('d/m/Y · H:i') }}</time></li>{% endfor %}</ol><p class="timeline-timezone">Horas en {{ app_timezone }}</p></section>
-            <section class="detail-card" id="detail-actions" aria-labelledby="actions-title"{% if reservation.estado == 'cancelada' %} hidden{% endif %}><h2 id="actions-title">Gestionar reserva</h2><p class="action-help">Cada cambio quedará registrado en el historial.</p><button class="button button-primary full-button" type="button" id="confirm-reservation"{% if reservation.estado != 'pendiente' %} hidden{% endif %}>✓ Confirmar reserva</button><button class="button button-cancel full-button" type="button" data-cancel-id="{{ reservation.id }}" data-version="{{ reservation.version }}" data-guest="{{ reservation.nombre_huesped }}">Cancelar reserva</button></section>
+            <section class="detail-card" aria-labelledby="history-title">
+                <div class="detail-card-heading">
+                    <span class="section-icon" aria-hidden="true">◷</span>
+                    <h2 id="history-title">Historial de la reserva</h2>
+                </div>
+                <ol id="event-timeline" class="timeline">
+                    {% for event in reservation.eventos %}
+                        <li class="timeline-{{ event.tipo }}">
+                            <span class="timeline-dot" aria-hidden="true"></span>
+                            <strong>{{ event.tipo == 'creada' ? 'Reserva creada' : (event.tipo == 'confirmada' ? 'Reserva confirmada' : 'Reserva cancelada') }}</strong>
+                            <p>{{ event.descripcion }}</p>
+                            <time datetime="{{ event.fecha_creacion }}">{{ event.fecha_creacion|date('d/m/Y · H:i') }}</time>
+                        </li>
+                    {% endfor %}
+                </ol>
+                <p class="timeline-timezone">Horas en {{ app_timezone }}</p>
+            </section>
+            <section class="detail-card" id="detail-actions" aria-labelledby="actions-title"{% if reservation.estado == 'cancelada' %} hidden{% endif %}>
+                <h2 id="actions-title">Gestionar reserva</h2>
+                <p class="action-help">Cada cambio quedará registrado en el historial.</p>
+                <button class="button button-primary full-button" type="button" id="confirm-reservation"
+                        {% if reservation.estado != 'pendiente' %}hidden{% endif %}>✓ Confirmar reserva</button>
+                <button class="button button-cancel full-button" type="button"
+                        data-cancel-id="{{ reservation.id }}" data-version="{{ reservation.version }}"
+                        data-guest="{{ reservation.nombre_huesped }}">Cancelar reserva</button>
+            </section>
         </aside>
     </div>
 </section>
