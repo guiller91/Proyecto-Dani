@@ -1,0 +1,16 @@
+/vendor/
+/.tools/
+/.env
+/.env.*
+!/.env.example
+!/.env.test.example
+/var/*
+!/var/.gitkeep
+/.phpunit.cache/
+/.phpstan-cache/
+/test-results/
+/playwright-report/
+/node_modules/
+*.log
+/.idea/
+/.vscode/
