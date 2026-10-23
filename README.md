@@ -2,6 +2,8 @@
 
 Aplicación de reservas de alojamiento para la prueba técnica de MisterPlan. PHP nativo, MySQL/MariaDB, Twig y JavaScript vanilla. Interfaz en español, renderizado inicial en servidor y operaciones asíncronas sobre una API JSON.
 
+La interfaz sigue el criterio de un registro de recepción: resumen compacto, tabla de datos, estados discretos y acciones explícitas. Utiliza tipografías del sistema y Georgia, sin fuentes remotas ni recursos externos.
+
 **Repositorio:** [guiller91/Proyecto-Dani](https://github.com/guiller91/Proyecto-Dani)
 
 **Demo pública:** pendiente de asignar un hosting con PHP y MySQL. El repositorio incluye el despliegue completo con Docker y una guía para hosting convencional; una URL local no se presenta como despliegue público.

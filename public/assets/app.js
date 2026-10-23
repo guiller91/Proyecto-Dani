@@ -118,17 +118,11 @@
         link.href = `/reservas/${reservation.id}`;
         cell().append(link);
         const guest = element('div', 'guest-cell');
-        const avatar = element(
-            'span',
-            `avatar avatar-${reservation.id % 4}`,
-            [...reservation.nombre_huesped][0].toUpperCase()
-        );
-        avatar.setAttribute('aria-hidden', 'true');
         const info = element('div');
         const name = element('a', 'guest-name', reservation.nombre_huesped);
         name.href = link.href;
         info.append(name, element('span', 'cell-secondary', reservation.email_huesped));
-        guest.append(avatar, info);
+        guest.append(info);
         cell().append(guest);
         cell().append(element('span', 'accommodation-name', reservation.nombre_alojamiento));
         cell().append(
@@ -141,7 +135,7 @@
         cell().append(badge(reservation.estado));
         cell('amount').textContent = money.format(reservation.importe);
         const actions = cell('row-actions');
-        const view = element('a', 'icon-button', '↗');
+        const view = element('a', 'icon-button', 'Ver');
         view.href = link.href;
         view.title = 'Ver detalle';
         view.setAttribute('aria-label', `Ver reserva de ${reservation.nombre_huesped}`);
@@ -188,7 +182,6 @@
             td.colSpan = 7;
             const empty = element('div', 'empty-state');
             empty.append(
-                element('span', '', '⌕'),
                 element('h3', '', 'No hay reservas que mostrar'),
                 element('p', '', 'Prueba con otros filtros o crea tu primera reserva.')
             );
@@ -404,7 +397,7 @@
             button.textContent = 'Confirmando…';
             try {
                 await changeStatus(detailPage.dataset.id, detailPage.dataset.version, 'confirmada');
-                notify('Reserva confirmada. Todo listo para su llegada.');
+                notify('Reserva confirmada correctamente.');
             } catch (error) {
                 notify(error.message, true);
             } finally {

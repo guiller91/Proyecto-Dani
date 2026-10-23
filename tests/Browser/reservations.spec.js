@@ -46,13 +46,13 @@ test('creates, filters, cancels without navigation, and shows history', async ({
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Tus reservas.' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Reservas', level: 1, exact: true })).toBeVisible();
     let navigations = 0;
     page.on('request', (request) => {
         if (request.isNavigationRequest() && request.frame() === page.mainFrame()) navigations++;
     });
     await page.getByRole('button', { name: 'Nueva reserva' }).click();
-    const dialog = page.getByRole('dialog', { name: 'Nueva reserva.' });
+    const dialog = page.getByRole('dialog', { name: 'Nueva reserva', exact: true });
     await dialog.getByRole('button', { name: 'Crear reserva' }).click();
     await expect(dialog.locator('[aria-invalid="true"]').first()).toBeVisible();
     const name = `Lucía E2E ${randomUUID().slice(0, 8)}`;

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <meta name="app-timezone" content="{{ app_timezone }}">
-    <meta name="description" content="Gestión de reservas de alojamiento. Todas tus estancias, en un solo lugar.">
+    <meta name="description" content="Registro y gestión de reservas de alojamiento.">
     <title>{% block title %}Reservas{% endblock %} · Estancia</title>
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/app.css">
@@ -14,12 +14,12 @@
 <body>
 <a class="skip-link" href="#main">Saltar al contenido</a>
 <header class="topbar">
-    <a class="brand" href="/" aria-label="Estancia, inicio"><span class="brand-icon" aria-hidden="true">e<span>·</span></span>estancia<span class="brand-period">.</span></a>
-    <nav aria-label="Navegación principal"><a class="nav-link active" href="/" aria-current="page"><span aria-hidden="true">▦</span> Reservas</a></nav>
-    <span class="workspace-label"><span class="workspace-dot"></span> Espacio de gestión <span class="workspace-avatar" aria-hidden="true">E</span></span>
+    <a class="brand" href="/" aria-label="Estancia, inicio">Estancia<span class="brand-caption">Recepción</span></a>
+    <nav aria-label="Navegación principal"><a class="nav-link active" href="/" aria-current="page">Reservas</a></nav>
+    <span class="workspace-label">Gestión de alojamientos</span>
 </header>
 <main id="main" class="main" tabindex="-1">{% block content %}{% endblock %}</main>
-<footer class="footer"><span>estancia<span class="brand-period">.</span> <span class="footer-divider">/</span> Cada estancia, bien cuidada.</span><span>Gestión de alojamientos</span></footer>
+<footer class="footer"><span>Estancia <span class="footer-divider">/</span> Registro de reservas</span><span>Fechas y horas · {{ app_timezone }}</span></footer>
 <div id="notification" class="notification" role="status" aria-live="polite" hidden></div>
 <dialog id="confirm-dialog" class="modal modal-small" aria-labelledby="confirm-title">
     <form method="dialog" id="confirm-form">

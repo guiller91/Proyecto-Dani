@@ -10,7 +10,7 @@ PHP **8.5.12**, MariaDB **11.4.5**, Windows. Base de datos de la aplicación y b
 | --- | --- |
 | Importación de `database/database.sql` | 16 reservas y sus eventos importados correctamente |
 | Sintaxis PHP | 25 ficheros correctos |
-| PHPUnit | 59 pruebas, 147 aserciones, sin fallos ni omisiones |
+| PHPUnit | 60 pruebas, 151 aserciones, sin fallos ni omisiones |
 | PHPStan | Nivel 8, sin errores ni baseline |
 | PHP CS Fixer | PSR-12, sin cambios pendientes |
 | Playwright | Flujos comprobados en escritorio y móvil; 7 escenarios por dispositivo |
@@ -19,6 +19,8 @@ PHP **8.5.12**, MariaDB **11.4.5**, Windows. Base de datos de la aplicación y b
 | Composer audit | Sin avisos de vulnerabilidad en las dependencias instaladas |
 
 Se verificaron creación y estado inicial, validación de tipos/fechas/email/dinero, límites, rechazo de campos inesperados, filtros combinados, coincidencia de estancias, búsqueda literal de `%`/`_`, paginación, importes exactos y respuesta a IDs inexistentes.
+
+Tras la revisión de interfaz se repitieron los flujos de navegador y los controles de accesibilidad. El listado utiliza un resumen con separadores y una tabla sin avatares decorativos; el detalle y los formularios comparten la nueva tipografía y los controles. Una prueba adicional comprueba que el número de noches no varía por los cambios de horario de primavera y otoño.
 
 Las pruebas de integración introducen un fallo real mediante un trigger en la base de pruebas: tanto la creación como el cambio de estado se revierten si no puede guardarse el evento. También comprueban rechazo de una versión obsoleta, ausencia de eventos duplicados y sanitización de errores de base de datos.
 

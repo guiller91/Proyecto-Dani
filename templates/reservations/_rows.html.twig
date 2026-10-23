@@ -5,7 +5,6 @@
         </td>
         <td>
             <div class="guest-cell">
-                <span class="avatar avatar-{{ reservation.id % 4 }}" aria-hidden="true">{{ reservation.nombre_huesped|slice(0,1)|upper }}</span>
                 <div>
                     <a class="guest-name" href="/reservas/{{ reservation.id }}">{{ reservation.nombre_huesped }}</a>
                     <span class="cell-secondary">{{ reservation.email_huesped }}</span>
@@ -24,7 +23,7 @@
         <td class="amount">{{ reservation.importe|number_format(2, ',', '.') }} €</td>
         <td class="row-actions">
             <a class="icon-button" href="/reservas/{{ reservation.id }}"
-               aria-label="Ver reserva de {{ reservation.nombre_huesped }}" title="Ver detalle">↗</a>
+               aria-label="Ver reserva de {{ reservation.nombre_huesped }}" title="Ver detalle">Ver</a>
             {% if reservation.estado != 'cancelada' %}
                 <button class="icon-button cancel-button" type="button"
                         data-cancel-id="{{ reservation.id }}" data-version="{{ reservation.version }}"
@@ -37,7 +36,6 @@
     <tr>
         <td colspan="7">
             <div class="empty-state">
-                <span aria-hidden="true">⌕</span>
                 <h3>No hay reservas que mostrar</h3>
                 <p>Prueba con otros filtros o crea tu primera reserva.</p>
             </div>

@@ -5,8 +5,8 @@
     <a href="/" class="back-link">← Volver a reservas</a>
     <div class="page-heading detail-heading">
         <div>
-            <p class="eyebrow">CADA DETALLE CUENTA</p>
-            <h1 id="page-title">Reserva <span class="muted-heading">#{{ '%04d'|format(reservation.id) }}</span><span class="heading-dot">.</span></h1>
+            <p class="eyebrow">Recepción / Ficha de reserva</p>
+            <h1 id="page-title">Reserva <span class="muted-heading">#{{ '%04d'|format(reservation.id) }}</span></h1>
             <p class="subtitle">Creada el {{ reservation.fecha_creacion|date('d/m/Y') }} a las {{ reservation.fecha_creacion|date('H:i') }} · {{ app_timezone }}</p>
         </div>
         <div id="detail-status">
@@ -17,8 +17,7 @@
         <div class="detail-main">
             <article class="detail-card">
                 <div class="detail-card-heading">
-                    <span class="section-icon" aria-hidden="true">⌂</span>
-                    <h2>La estancia</h2>
+                    <h2>Estancia</h2>
                 </div>
                 <h3 class="stay-name">{{ reservation.nombre_alojamiento }}</h3>
                 <div class="stay-dates">
@@ -31,7 +30,7 @@
                         <span class="detail-label">SALIDA</span>
                         <strong>{{ reservation.fecha_salida|date('d/m/Y', false) }}</strong>
                     </div>
-                    <div class="night-count">{{ date(reservation.fecha_salida).diff(date(reservation.fecha_entrada)).days }} noches</div>
+                    <div class="night-count">{{ date(reservation.fecha_salida, 'UTC').diff(date(reservation.fecha_entrada, 'UTC')).days }} noches</div>
                 </div>
                 <div class="detail-total">
                     <span>Importe total</span>
@@ -40,8 +39,7 @@
             </article>
             <article class="detail-card">
                 <div class="detail-card-heading">
-                    <span class="section-icon" aria-hidden="true">♙</span>
-                    <h2>El huésped</h2>
+                    <h2>Datos del huésped</h2>
                 </div>
                 <dl class="guest-details">
                     <div><dt>Nombre completo</dt><dd>{{ reservation.nombre_huesped }}</dd></div>
@@ -50,7 +48,6 @@
             </article>
             <article class="detail-card">
                 <div class="detail-card-heading">
-                    <span class="section-icon" aria-hidden="true">≡</span>
                     <h2>Notas de la reserva</h2>
                 </div>
                 <p class="notes{% if not reservation.notas %} muted{% endif %}">{{ reservation.notas ?: 'No hay notas para esta reserva.' }}</p>
@@ -59,7 +56,6 @@
         <aside>
             <section class="detail-card" aria-labelledby="history-title">
                 <div class="detail-card-heading">
-                    <span class="section-icon" aria-hidden="true">◷</span>
                     <h2 id="history-title">Historial de la reserva</h2>
                 </div>
                 <ol id="event-timeline" class="timeline">

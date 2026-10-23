@@ -86,6 +86,16 @@ final class HttpKernelTest extends DatabaseTestCase
         }
     }
 
+    public function testCalendarNightsAreUnaffectedByDaylightSavingChanges(): void
+    {
+        foreach ([['2026-10-25', '2026-10-28'], ['2027-03-27', '2027-03-30']] as [$arrival, $departure]) {
+            $reservation = $this->create(['fecha_entrada' => $arrival, 'fecha_salida' => $departure]);
+            $response = $this->request('GET', '/reservas/' . $reservation['id']);
+            self::assertSame(200, $response->status);
+            self::assertStringContainsString('3 noches', $response->body);
+        }
+    }
+
     public function testDatabaseErrorsAreSanitizedAndCorrelated(): void
     {
         $this->pdo->exec("CREATE TRIGGER fail_history BEFORE INSERT ON reserva_evento FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SECRET SQL DETAILS'");

@@ -91,7 +91,7 @@ jobs:
                     sleep 2
                   done
                   python3 -c 'import json; data=json.load(open("/tmp/reservas.json")); assert data["meta"]["total"] == 16; assert len(data["data"]) == 10'
-                  curl --fail --silent http://127.0.0.1:8080/ | grep -q 'Tus reservas'
+                  curl --fail --silent http://127.0.0.1:8080/ | grep -q 'Registro de reservas'
             - run: docker compose logs
               if: failure()
             - run: docker compose down
