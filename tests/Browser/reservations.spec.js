@@ -2,6 +2,27 @@ const { test, expect } = require('@playwright/test');
 const { randomUUID } = require('node:crypto');
 const AxeBuilder = require('@axe-core/playwright').default;
 
+test('preserves page size when navigating a filtered shared URL', async ({ page, request }) => {
+    const prefix = `Paginación ${randomUUID().slice(0, 8)}`;
+    const first = await createByApi(request, { nombre_huesped: `${prefix} A` });
+    const second = await createByApi(request, { nombre_huesped: `${prefix} B` });
+    await page.goto(`/?q=${encodeURIComponent(prefix)}&per_page=1`);
+    await expect(page.locator('#reservation-rows tr')).toHaveCount(1);
+    await expect(page.getByRole('link', { name: `${prefix} B`, exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Página siguiente' }).click();
+    await expect(page.getByRole('link', { name: `${prefix} A`, exact: true })).toHaveAttribute(
+        'href',
+        new RegExp(`/reservas/${first.id}$`)
+    );
+    await expect(page.locator('#page-number')).toHaveText('2 / 2');
+    await expect(page.locator('#reservation-rows tr')).toHaveCount(1);
+    await page.getByRole('button', { name: 'Página anterior' }).click();
+    await expect(page.getByRole('link', { name: `${prefix} B`, exact: true })).toHaveAttribute(
+        'href',
+        new RegExp(`/reservas/${second.id}$`)
+    );
+});
+
 async function createByApi(request, overrides = {}) {
     const { csrf_token: token } = await (await request.get('/api/session')).json();
     const response = await request.post('/api/reservas', {

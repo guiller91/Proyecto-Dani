@@ -18,6 +18,7 @@
             <div><label for="to">Hasta</label><input type="date" id="to" name="hasta" value="{{ filters.to }}" min="1000-01-01" max="9999-12-31"></div>
             <button class="button button-secondary filter-submit" type="submit">Filtrar <span aria-hidden="true">↓</span></button>
             <button class="reset-button" id="reset-filters" type="button" title="Limpiar filtros" aria-label="Limpiar filtros">↺</button>
+            <input type="hidden" name="per_page" value="{{ filters.perPage }}">
         </form>
         <p class="filter-hint">El intervalo muestra las estancias que coinciden con las fechas seleccionadas.</p>
         <div id="list-error" class="list-error" role="alert" hidden></div>

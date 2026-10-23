@@ -219,6 +219,7 @@
         for (const [key, value] of [...params]) {
             if (!value.trim()) params.delete(key);
         }
+        if (params.get('per_page') === '10') params.delete('per_page');
         if (page > 1) params.set('page', page);
         listAbort?.abort();
         const controller = new AbortController();
