@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App;
@@ -13,12 +14,15 @@ final readonly class Config
         public string $database,
         public string $username,
         public string $password,
-    ) {}
+    ) {
+    }
 
     public static function fromEnvironment(): self
     {
-        $read = static fn (string $key, string $default = ''): string =>
-            (string) ($_ENV[$key] ?? $_SERVER[$key] ?? getenv($key) ?: $default);
+        $read = static function (string $key, string $default = ''): string {
+            $value = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
+            return is_string($value) ? $value : $default;
+        };
         $database = $read('DB_DATABASE', 'reservas');
         $port = $read('DB_PORT', '3306');
         $host = $read('DB_HOST', '127.0.0.1');
@@ -30,7 +34,14 @@ final readonly class Config
         $timezone = $read('APP_TIMEZONE', 'Europe/Madrid');
         new \DateTimeZone($timezone);
 
-        return new self($read('APP_ENV', 'production'), $timezone, $host, (int) $port,
-            $database, $read('DB_USERNAME', 'reservas'), $read('DB_PASSWORD'));
+        return new self(
+            $read('APP_ENV', 'production'),
+            $timezone,
+            $host,
+            (int) $port,
+            $database,
+            $read('DB_USERNAME', 'reservas'),
+            $read('DB_PASSWORD')
+        );
     }
 }

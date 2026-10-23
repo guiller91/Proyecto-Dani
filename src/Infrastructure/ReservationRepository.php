@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Infrastructure;
@@ -9,7 +10,9 @@ use PDO;
 
 final readonly class ReservationRepository
 {
-    public function __construct(private PDO $pdo) {}
+    public function __construct(private PDO $pdo)
+    {
+    }
 
     /** @return array{data: list<array<string, mixed>>, meta: array<string, mixed>, summary: array<string, mixed>} */
     public function listing(ReservationFilter $filter): array

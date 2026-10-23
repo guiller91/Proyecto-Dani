@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Domain;
@@ -15,7 +16,8 @@ final readonly class ReservationInput
         public string $checkOut,
         public string $amount,
         public string $notes,
-    ) {}
+    ) {
+    }
 
     /** @param array<string, mixed> $data */
     public static function fromArray(array $data): self
@@ -71,8 +73,15 @@ final readonly class ReservationInput
             throw new HttpException(400, 'Revisa los campos indicados.', $errors);
         }
         [$whole, $fraction] = array_pad(explode('.', $amount, 2), 2, '');
-        return new self($name, $email, $accommodation, $checkIn, $checkOut,
-            $whole . '.' . str_pad($fraction, 2, '0'), $notes);
+        return new self(
+            $name,
+            $email,
+            $accommodation,
+            $checkIn,
+            $checkOut,
+            $whole . '.' . str_pad($fraction, 2, '0'),
+            $notes
+        );
     }
 
     public static function validDate(string $value): bool

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http;
@@ -15,7 +16,8 @@ final readonly class Request
         public array $query = [],
         public array $headers = [],
         public string $body = '',
-    ) {}
+    ) {
+    }
 
     public static function fromGlobals(): self
     {
@@ -27,9 +29,13 @@ final readonly class Request
         }
         $headers['content-type'] = (string) ($_SERVER['CONTENT_TYPE'] ?? '');
         $body = file_get_contents('php://input', false, null, 0, 16385);
-        return new self((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'),
+        return new self(
+            (string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'),
             parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/',
-            $_GET, $headers, $body === false ? '' : $body);
+            $_GET,
+            $headers,
+            $body === false ? '' : $body
+        );
     }
 
     /** @return array<string, mixed> */

@@ -1,0 +1,8 @@
+parameters:
+    level: 8
+    paths:
+        - src
+        - public/index.php
+        - public/router.php
+        - bootstrap.php
+    tmpDir: .phpstan-cache

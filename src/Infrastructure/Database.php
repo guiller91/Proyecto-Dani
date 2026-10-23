@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Infrastructure;
@@ -19,6 +20,7 @@ final class Database
                 PDO::ATTR_TIMEOUT => 5],
         );
         $pdo->exec("SET time_zone = '+00:00'");
+        $pdo->exec('SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ');
         return $pdo;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http;
@@ -7,7 +8,9 @@ use Twig\Environment;
 
 final readonly class Kernel
 {
-    public function __construct(private ReservationController $controller, private Environment $twig, private string $csrfToken) {}
+    public function __construct(private ReservationController $controller, private Environment $twig, private string $csrfToken)
+    {
+    }
 
     public function handle(Request $request): Response
     {

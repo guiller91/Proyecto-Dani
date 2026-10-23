@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Domain;
@@ -14,7 +15,8 @@ final readonly class ReservationFilter
         public string $search = '',
         public int $page = 1,
         public int $perPage = 10,
-    ) {}
+    ) {
+    }
 
     /** @param array<string, mixed> $query */
     public static function fromQuery(array $query): self

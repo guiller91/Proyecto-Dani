@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Domain;
@@ -9,10 +10,20 @@ use PDO;
 
 final readonly class ReservationService
 {
-    public function __construct(private PDO $pdo, private ReservationRepository $repository) {}
+    public function __construct(private PDO $pdo, private ReservationRepository $repository)
+    {
+    }
 
     /** @return array<string, mixed> */
     public function detail(int $id): array
+    {
+        return $this->pdo->inTransaction()
+            ? $this->loadDetail($id)
+            : $this->transaction(fn (): array => $this->loadDetail($id));
+    }
+
+    /** @return array<string, mixed> */
+    private function loadDetail(int $id): array
     {
         $reservation = $this->repository->find($id);
         if ($reservation === null) {
@@ -67,8 +78,11 @@ final readonly class ReservationService
             }
             if ($current !== $status) {
                 $this->repository->updateStatus($id, $status->value);
-                $this->repository->addEvent($id, $status->value,
-                    "Estado cambiado de {$current->value} a {$status->value}.");
+                $this->repository->addEvent(
+                    $id,
+                    $status->value,
+                    "Estado cambiado de {$current->value} a {$status->value}."
+                );
             }
             return $this->detail($id);
         });

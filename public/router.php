@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 // Only explicitly public assets may bypass the front controller.

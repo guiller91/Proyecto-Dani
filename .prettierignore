@@ -1,0 +1,11 @@
+vendor
+.tools
+node_modules
+var
+.phpunit.cache
+.phpstan-cache
+test-results
+playwright-report
+templates
+composer.lock
+package-lock.json
