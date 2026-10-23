@@ -1,0 +1,16 @@
+.git
+.github
+.env
+.env.*
+.tools
+vendor
+node_modules
+tests
+var/*
+test-results
+playwright-report
+.phpunit.cache
+.phpstan-cache
+docs/screenshots
+package*.json
+playwright.config.js
