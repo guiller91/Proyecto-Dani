@@ -13,7 +13,13 @@ module.exports = defineConfig({
     workers: 1,
     retries: process.env.CI ? 1 : 0,
     reporter: [['list'], ['html', { open: 'never' }]],
-    use: { baseURL: 'http://127.0.0.1:8081', trace: 'retain-on-failure', screenshot: 'only-on-failure' },
+    use: {
+        baseURL: 'http://127.0.0.1:8081',
+        locale: 'es-ES',
+        timezoneId: 'Europe/Madrid',
+        trace: 'retain-on-failure',
+        screenshot: 'only-on-failure',
+    },
     projects: [
         { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
         { name: 'mobile', use: { ...devices['iPhone 13'], defaultBrowserType: 'chromium' } },

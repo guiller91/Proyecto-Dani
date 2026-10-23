@@ -1,5 +1,6 @@
 {% for reservation in data %}
     <tr>
+        <td class="checkbox-cell"><input type="checkbox" class="row-select" data-id="{{ reservation.id }}" data-version="{{ reservation.version }}" aria-label="Seleccionar reserva de {{ reservation.nombre_huesped }}"{% if reservation.estado == 'cancelada' %} disabled{% endif %}></td>
         <td>
             <a class="reservation-code" href="/reservas/{{ reservation.id }}">#{{ '%04d'|format(reservation.id) }}</a>
         </td>
@@ -23,7 +24,7 @@
         <td class="amount">{{ reservation.importe|number_format(2, ',', '.') }} €</td>
         <td class="row-actions">
             <a class="icon-button" href="/reservas/{{ reservation.id }}"
-               aria-label="Ver reserva de {{ reservation.nombre_huesped }}" title="Ver detalle">Ver</a>
+               data-preview-id="{{ reservation.id }}" aria-label="Ver reserva de {{ reservation.nombre_huesped }}" title="Ver detalle">Abrir</a>
             {% if reservation.estado != 'cancelada' %}
                 <button class="icon-button cancel-button" type="button"
                         data-cancel-id="{{ reservation.id }}" data-version="{{ reservation.version }}"
@@ -34,7 +35,7 @@
     </tr>
 {% else %}
     <tr>
-        <td colspan="7">
+        <td colspan="8">
             <div class="empty-state">
                 <h3>No hay reservas que mostrar</h3>
                 <p>Prueba con otros filtros o crea tu primera reserva.</p>

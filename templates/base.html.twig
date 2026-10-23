@@ -1,3 +1,4 @@
+{% from '_icons.html.twig' import icon %}
 <!doctype html>
 <html lang="es">
 <head>
@@ -5,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <meta name="app-timezone" content="{{ app_timezone }}">
-    <meta name="description" content="Registro y gestión de reservas de alojamiento.">
+    <meta name="app-today" content="{{ app_today }}">
+    <meta name="description" content="Gestión operativa de reservas, llegadas y salidas.">
     <title>{% block title %}Reservas{% endblock %} · Estancia</title>
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/app.css">
@@ -13,22 +15,43 @@
 </head>
 <body>
 <a class="skip-link" href="#main">Saltar al contenido</a>
-<header class="topbar">
-    <a class="brand" href="/" aria-label="Estancia, inicio">Estancia<span class="brand-caption">Recepción</span></a>
-    <nav aria-label="Navegación principal"><a class="nav-link active" href="/" aria-current="page">Reservas</a></nav>
-    <span class="workspace-label">Gestión de alojamientos</span>
-</header>
-<main id="main" class="main" tabindex="-1">{% block content %}{% endblock %}</main>
-<footer class="footer"><span>Estancia <span class="footer-divider">/</span> Registro de reservas</span><span>Fechas y horas · {{ app_timezone }}</span></footer>
+<aside class="sidebar" id="sidebar" aria-label="Espacio de trabajo">
+    <a class="brand" href="/" aria-label="Estancia, inicio"><span class="brand-mark">{{ icon('building', 23) }}</span>estancia<span class="brand-pro">MANAGER</span></a>
+    <div class="workspace"><span class="workspace-icon">{{ icon('building') }}</span><div><strong>Gestión de alojamientos</strong><span>Espacio de trabajo</span></div></div>
+    <p class="nav-caption">OPERACIONES</p>
+    <nav aria-label="Navegación principal">
+        <a class="nav-link" data-nav-view="list" href="/">{{ icon('grid') }}<span>Reservas</span></a>
+        <a class="nav-link" data-nav-view="agenda" href="/?vista=agenda">{{ icon('calendar') }}<span>Agenda de estancias</span></a>
+    </nav>
+    <p class="nav-caption quick-caption">ACCESOS RÁPIDOS</p>
+    <nav aria-label="Accesos rápidos">
+        <a class="nav-link" href="/?entrada={{ app_today }}&amp;estado=confirmada">{{ icon('arrival') }}<span>Llegadas de hoy</span></a>
+        <a class="nav-link" href="/?salida={{ app_today }}&amp;estado=confirmada">{{ icon('departure') }}<span>Salidas de hoy</span></a>
+        <a class="nav-link" href="/?estado=pendiente">{{ icon('clock') }}<span>Por confirmar</span></a>
+    </nav>
+    <div class="sidebar-bottom"><span class="demo-dot"></span><div><strong>Entorno de demostración</strong><span>Reservas de ejemplo · acceso compartido</span></div></div>
+</aside>
+<div class="app-shell">
+    <header class="topbar">
+        <button type="button" class="icon-button mobile-menu" id="toggle-sidebar" aria-label="Mostrar navegación" aria-expanded="false" aria-controls="sidebar">{{ icon('menu') }}</button>
+        <div class="breadcrumb"><span>Operaciones</span><span class="breadcrumb-separator">/</span><strong>{% block breadcrumb %}Reservas{% endblock %}</strong></div>
+        <div class="topbar-right"><span class="today-label">{{ icon('calendar',16) }} {{ app_today|date('d/m/Y',false) }}</span><a class="docs-link" aria-label="Documentación del proyecto" href="https://github.com/guiller91/Proyecto-Dani#readme" target="_blank" rel="noopener noreferrer">{{ icon('book',16) }}<span>Documentación</span></a></div>
+    </header>
+    <main id="main" class="main" tabindex="-1">{% block content %}{% endblock %}</main>
+    <footer class="footer"><span>Estancia Manager</span><span>Zona horaria: {{ app_timezone }}</span></footer>
+</div>
 <div id="notification" class="notification" role="status" aria-live="polite" hidden></div>
 <dialog id="confirm-dialog" class="modal modal-small" aria-labelledby="confirm-title">
     <form method="dialog" id="confirm-form">
-        <div class="modal-symbol danger-symbol" aria-hidden="true">!</div>
+        <div class="modal-symbol danger-symbol">{{ icon('close',24) }}</div>
         <h2 id="confirm-title">¿Cancelar esta reserva?</h2>
         <p id="confirm-description">La reserva quedará cancelada y el cambio se guardará en su historial. Esta acción no se puede deshacer.</p>
         <p id="confirm-error" class="form-error" role="alert" hidden></p>
-        <div class="modal-actions"><button class="button button-secondary" value="close" type="button" data-close-dialog>Volver</button><button class="button button-danger" id="confirm-action" type="submit">Sí, cancelar reserva</button></div>
+        <div class="modal-actions"><button class="button button-secondary" type="button" data-close-dialog>Volver</button><button class="button button-danger" id="confirm-action" type="submit">Sí, cancelar reserva</button></div>
     </form>
+</dialog>
+<dialog id="bulk-dialog" class="modal modal-small" aria-labelledby="bulk-title">
+    <form id="bulk-form"><div class="modal-symbol">{{ icon('list',24) }}</div><h2 id="bulk-title">Cambiar estado de las reservas</h2><p id="bulk-description"></p><p id="bulk-error" class="form-error" role="alert" hidden></p><div class="modal-actions"><button class="button button-secondary" type="button" data-close-dialog>Volver</button><button class="button button-primary" id="bulk-submit" type="submit">Aplicar cambio</button></div></form>
 </dialog>
 {% block dialogs %}{% endblock %}
 </body>

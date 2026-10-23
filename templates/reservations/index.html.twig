@@ -1,108 +1,46 @@
 {% extends 'base.html.twig' %}
+{% from '_icons.html.twig' import icon %}
 {% block title %}Reservas{% endblock %}
 {% block content %}
-<section id="reservations-page" aria-labelledby="page-title">
+<section id="reservations-page" data-view="{{ initial_view }}" aria-labelledby="page-title">
     <div class="page-heading">
-        <div>
-            <p class="eyebrow">Recepción / Reservas</p>
-            <h1 id="page-title">Reservas</h1>
-            <p class="subtitle">Consulta las estancias y gestiona su estado.</p>
-        </div>
-        <button class="button button-primary" id="open-create" type="button"><span aria-hidden="true">＋</span> Nueva reserva</button>
+        <div><p class="eyebrow">GESTIÓN DE ESTANCIAS</p><h1 id="page-title">Reservas</h1><p class="subtitle">Organiza las estancias, atiende las llegadas y mantén todo al día.</p></div>
+        <div class="heading-actions"><button class="button button-secondary" type="button" id="export-reservations">{{ icon('download',17) }} Exportar CSV</button><button class="button button-primary" id="open-create" type="button">{{ icon('plus',18) }} Nueva reserva</button></div>
     </div>
-    <div class="stats" aria-label="Resumen de las reservas filtradas">
-        <article class="stat-card">
-            <div class="stat-top"><h2>Reservas</h2></div>
-            <div class="stat-value" id="stat-total">{{ summary.total }}</div>
-            <p>En la selección</p>
-        </article>
-        <article class="stat-card">
-            <div class="stat-top"><h2>Confirmadas</h2></div>
-            <div class="stat-value" id="stat-confirmed">{{ summary.confirmadas }}</div>
-            <p>Con estancia confirmada</p>
-        </article>
-        <article class="stat-card">
-            <div class="stat-top"><h2>Pendientes</h2></div>
-            <div class="stat-value" id="stat-pending">{{ summary.pendientes }}</div>
-            <p>Por confirmar</p>
-        </article>
-        <article class="stat-card stat-money">
-            <div class="stat-top"><h2>Importe activo</h2></div>
-            <div class="stat-value" id="stat-amount">{{ summary.importe_activo|number_format(2, ',', '.') }} <span>€</span></div>
-            <p>Sin incluir reservas canceladas</p>
-        </article>
+    <div class="section-label"><h2>Operativa de hoy</h2><span>{{ app_today|date('d/m/Y',false) }} <span class="label-dot">·</span> <span id="overview-inhouse">{{ overview.alojados }} {{ overview.alojados == 1 ? 'estancia confirmada en curso' : 'estancias confirmadas en curso' }}</span></span></div>
+    <div class="stats" aria-label="Resumen operativo global">
+        <a class="stat-card" href="/?entrada={{ app_today }}&amp;estado=confirmada"><div class="stat-top"><h3>Llegadas de hoy</h3><span class="stat-icon blue">{{ icon('arrival') }}</span></div><div class="stat-value" id="overview-arrivals">{{ overview.llegadas }}</div><p>Reservas confirmadas <span aria-hidden="true">↗</span></p></a>
+        <a class="stat-card" href="/?salida={{ app_today }}&amp;estado=confirmada"><div class="stat-top"><h3>Salidas de hoy</h3><span class="stat-icon teal">{{ icon('departure') }}</span></div><div class="stat-value" id="overview-departures">{{ overview.salidas }}</div><p>Finalizan su estancia <span aria-hidden="true">↗</span></p></a>
+        <a class="stat-card" href="/?estado=pendiente"><div class="stat-top"><h3>Por confirmar</h3><span class="stat-icon amber">{{ icon('clock') }}</span></div><div class="stat-value" id="overview-pending">{{ overview.pendientes }}</div><p>Pendientes de gestión <span aria-hidden="true">↗</span></p></a>
+        <article class="stat-card"><div class="stat-top"><h3>Volumen activo</h3><span class="stat-icon violet">{{ icon('euro') }}</span></div><div class="stat-value money-value" id="overview-amount">{{ overview.importe_activo|number_format(2, ',', '.') }} €</div><p>Total sin reservas canceladas</p></article>
     </div>
     <section class="reservations-panel" aria-labelledby="list-title">
-        <div class="panel-heading">
-            <div>
-                <h2 id="list-title">Registro de reservas <span id="result-count" class="count-pill">{{ meta.total }}</span></h2>
+        <div class="panel-heading"><h2 id="list-title"><span id="panel-title">Registro de reservas</span> <span id="result-count" class="count-pill">{{ meta.total }}</span></h2><div class="panel-heading-right"><span id="loading-indicator" class="loading-label" role="status" hidden><span class="spinner" aria-hidden="true"></span> Actualizando…</span><div class="view-switch" role="group" aria-label="Vista de reservas"><button type="button" data-view="list" aria-pressed="{{ initial_view == 'list' ? 'true' : 'false' }}">{{ icon('list',16) }} Lista</button><button type="button" data-view="agenda" aria-pressed="{{ initial_view == 'agenda' ? 'true' : 'false' }}">{{ icon('calendar',16) }} Agenda</button></div></div></div>
+        <div id="list-view"{% if initial_view != 'list' %} hidden{% endif %}>
+            <div class="status-tabs" role="group" aria-label="Filtrar por estado">
+                {% for value,label in {'': 'Todas las reservas', 'pendiente':'Pendientes', 'confirmada':'Confirmadas', 'cancelada':'Canceladas'} %}<button type="button" data-status="{{ value }}" aria-pressed="{{ (filters.status ? filters.status.value : '') == value ? 'true' : 'false' }}">{% if value %}<span class="tab-dot tab-{{ value }}" aria-hidden="true"></span>{% endif %}{{ label }}</button>{% endfor %}
             </div>
-            <span id="loading-indicator" class="loading-label" role="status" hidden><span class="spinner" aria-hidden="true"></span> Actualizando…</span>
+            <form id="filters" class="filters" action="/" method="get">
+                <div class="filter-search"><label for="search">Buscar huésped</label><div class="input-icon">{{ icon('search',17) }}<input id="search" type="search" name="q" placeholder="Nombre del huésped…" maxlength="120" value="{{ filters.search }}"></div></div>
+                <div><label for="property-filter">Alojamiento</label><select id="property-filter" name="alojamiento"><option value="">Todos los alojamientos</option>{% for accommodation in accommodations %}<option value="{{ accommodation }}"{% if filters.accommodation == accommodation %} selected{% endif %}>{{ accommodation }}</option>{% endfor %}</select></div>
+                <div><label for="from">Estancias desde</label><input type="date" id="from" name="desde" value="{{ filters.from }}" min="1000-01-01" max="9999-12-31"></div>
+                <div><label for="to">Hasta</label><input type="date" id="to" name="hasta" value="{{ filters.to }}" min="1000-01-01" max="9999-12-31"></div>
+                <button class="button button-secondary filter-submit" type="submit">Filtrar</button><button class="reset-button icon-button" id="reset-filters" type="button" title="Limpiar filtros" aria-label="Limpiar filtros">↺</button>
+                <input type="hidden" id="status" name="estado" value="{{ filters.status ? filters.status.value : '' }}"><input type="hidden" name="entrada" value="{{ filters.arrival }}"><input type="hidden" name="salida" value="{{ filters.departure }}">
+            </form>
+            <div class="table-toolbar"><p class="filter-hint">El intervalo incluye las estancias que coinciden con esas fechas.</p><div class="sort-control"><label for="sort-order">Ordenar por</label><select name="orden" id="sort-order" form="filters">{% for value,label in {'recientes':'Más recientes', 'entrada':'Fecha de entrada', 'salida':'Fecha de salida', 'importe_desc':'Mayor importe', 'huesped':'Nombre del huésped'} %}<option value="{{ value }}"{% if filters.sort == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div></div>
+            <div id="active-filters" class="active-filters" aria-live="polite"></div>
+            <div id="list-error" class="list-error" role="alert" hidden></div>
+            <div id="bulk-toolbar" class="bulk-toolbar" hidden><span><strong id="selected-count">0</strong> seleccionadas</span><button type="button" id="bulk-confirm">{{ icon('check',16) }} Confirmar</button><button type="button" id="bulk-cancel">{{ icon('close',16) }} Cancelar</button><button type="button" id="clear-selection" class="clear-selection">Quitar selección</button></div>
+            <div class="table-scroll" tabindex="0" role="region" aria-label="Tabla de reservas, desplazable horizontalmente"><table><caption class="sr-only">Reservas de alojamiento</caption><thead><tr><th scope="col" class="checkbox-cell"><input type="checkbox" id="select-all" aria-label="Seleccionar reservas de esta página"></th><th scope="col">Reserva</th><th scope="col">Huésped</th><th scope="col">Alojamiento</th><th scope="col">Entrada → Salida</th><th scope="col">Estado</th><th scope="col" class="amount">Importe</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody id="reservation-rows">{% include 'reservations/_rows.html.twig' %}</tbody></table></div>
+            <div class="pagination"><p id="pagination-summary">{% if meta.total %}Mostrando {{ (meta.page - 1) * meta.per_page + 1 }}–{{ min(meta.page * meta.per_page, meta.total) }} de {{ meta.total }} reservas{% else %}0 reservas{% endif %}</p><div class="pagination-controls"><label for="page-size">Por página</label><select id="page-size" aria-label="Reservas por página" name="per_page" form="filters">{% for size in [10,25,50,100] %}<option value="{{ size }}"{% if filters.perPage == size %} selected{% endif %}>{{ size }}</option>{% endfor %}{% if filters.perPage not in [10,25,50,100] %}<option value="{{ filters.perPage }}" selected>{{ filters.perPage }}</option>{% endif %}</select><nav aria-label="Paginación"><button id="previous-page" type="button" class="page-button"{% if meta.page <= 1 %} disabled{% endif %} aria-label="Página anterior">←</button><span id="page-number" data-page="{{ meta.page }}">{{ meta.page }} / {{ meta.last_page }}</span><button id="next-page" type="button" class="page-button"{% if meta.page >= meta.last_page %} disabled{% endif %} aria-label="Página siguiente">→</button></nav></div></div>
+            <div class="selection-summary"><span>En esta selección: <strong id="stat-total">{{ summary.total }}</strong> reservas <span class="summary-separator">·</span> <span id="stat-confirmed">{{ summary.confirmadas }}</span> confirmadas <span class="summary-separator">·</span> <span id="stat-pending">{{ summary.pendientes }}</span> pendientes</span><span>Importe activo <strong id="stat-amount">{{ summary.importe_activo|number_format(2, ',', '.') }} €</strong></span></div>
         </div>
-        <form id="filters" class="filters" action="/" method="get">
-            <div class="filter-search">
-                <label for="search">Buscar huésped</label>
-                <div class="input-icon">
-                    <input id="search" type="search" name="q" placeholder="Nombre del huésped…" maxlength="120" value="{{ filters.search }}">
-                </div>
-            </div>
-            <div>
-                <label for="status">Estado</label>
-                <select name="estado" id="status">
-                    <option value="">Todos los estados</option>
-                    {% for status in ['pendiente','confirmada','cancelada'] %}
-                        <option value="{{ status }}"{% if filters.status and filters.status.value == status %} selected{% endif %}>{{ status|capitalize }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label for="from">Estancias desde</label>
-                <input type="date" id="from" name="desde" value="{{ filters.from }}" min="1000-01-01" max="9999-12-31">
-            </div>
-            <div>
-                <label for="to">Hasta</label>
-                <input type="date" id="to" name="hasta" value="{{ filters.to }}" min="1000-01-01" max="9999-12-31">
-            </div>
-            <button class="button button-secondary filter-submit" type="submit">Aplicar filtros</button>
-            <button class="reset-button" id="reset-filters" type="button" title="Limpiar filtros" aria-label="Limpiar filtros">↺</button>
-            <input type="hidden" name="per_page" value="{{ filters.perPage }}">
-        </form>
-        <p class="filter-hint">El intervalo muestra las estancias que coinciden con las fechas seleccionadas.</p>
-        <div id="list-error" class="list-error" role="alert" hidden></div>
-        <div class="table-scroll" tabindex="0" role="region" aria-label="Tabla de reservas, desplazable horizontalmente">
-            <table>
-                <caption class="sr-only">Reservas de alojamiento</caption>
-                <thead>
-                    <tr>
-                        <th scope="col">Reserva</th>
-                        <th scope="col">Huésped</th>
-                        <th scope="col">Alojamiento</th>
-                        <th scope="col">Entrada <span aria-hidden="true">→</span> Salida</th>
-                        <th scope="col">Estado</th>
-                        <th scope="col" class="amount">Importe</th>
-                        <th scope="col"><span class="sr-only">Acciones</span></th>
-                    </tr>
-                </thead>
-                <tbody id="reservation-rows">
-                    {% include 'reservations/_rows.html.twig' %}
-                </tbody>
-            </table>
-        </div>
-        <div class="pagination">
-            <p id="pagination-summary">
-                {% if meta.total %}
-                    Mostrando {{ (meta.page - 1) * meta.per_page + 1 }}–{{ min(meta.page * meta.per_page, meta.total) }} de {{ meta.total }} reservas
-                {% else %}
-                    0 reservas
-                {% endif %}
-            </p>
-            <nav aria-label="Paginación">
-                <button id="previous-page" type="button" class="page-button"{% if meta.page <= 1 %} disabled{% endif %} aria-label="Página anterior">←</button>
-                <span id="page-number" data-page="{{ meta.page }}">{{ meta.page }} / {{ meta.last_page }}</span>
-                <button id="next-page" type="button" class="page-button"{% if meta.page >= meta.last_page %} disabled{% endif %} aria-label="Página siguiente">→</button>
-            </nav>
-        </div>
+        <div id="agenda-view"{% if initial_view != 'agenda' %} hidden{% endif %}><div class="agenda-toolbar"><div><h3>Agenda de llegadas y salidas</h3><p>Todos los alojamientos · las reservas canceladas no aparecen.</p></div><div class="agenda-period"><button class="page-button" id="agenda-previous" type="button" aria-label="Semana anterior">←</button><label class="sr-only" for="agenda-start">Inicio de la agenda</label><input type="date" id="agenda-start" value="{{ app_today }}" min="1000-01-01" max="9999-12-25"><button class="page-button" id="agenda-next" type="button" aria-label="Semana siguiente">→</button></div></div><p id="agenda-error" class="list-error" role="alert" hidden></p><div id="agenda-content" class="agenda-content" aria-live="polite"></div></div>
     </section>
 </section>
 {% endblock %}
-{% block dialogs %}{% include 'reservations/_create.html.twig' %}{% endblock %}
+{% block dialogs %}
+{% include 'reservations/_create.html.twig' %}
+<dialog id="preview-dialog" class="drawer" aria-labelledby="preview-title"><div class="drawer-header"><div><p class="eyebrow">VISTA RÁPIDA</p><h2 id="preview-title">Reserva</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Cerrar vista rápida">{{ icon('close') }}</button></div><div id="preview-content" class="drawer-content"></div></dialog>
+{% endblock %}

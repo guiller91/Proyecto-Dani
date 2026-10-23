@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% from '_icons.html.twig' import icon %}
 {% block title %}Reserva #{{ '%04d'|format(reservation.id) }}{% endblock %}
 {% block content %}
 <section id="detail-page" data-id="{{ reservation.id }}" data-version="{{ reservation.version }}" aria-labelledby="page-title">
@@ -12,6 +13,7 @@
         <div id="detail-status">
             {% include 'reservations/_badge.html.twig' with {status: reservation.estado} only %}
         </div>
+        {% if reservation.estado != 'cancelada' %}<button class="button button-secondary" type="button" data-edit-id="{{ reservation.id }}">{{ icon('edit',17) }} Editar reserva</button>{% endif %}
     </div>
     <div class="detail-layout">
         <div class="detail-main">
@@ -30,7 +32,8 @@
                         <span class="detail-label">SALIDA</span>
                         <strong>{{ reservation.fecha_salida|date('d/m/Y', false) }}</strong>
                     </div>
-                    <div class="night-count">{{ date(reservation.fecha_salida, 'UTC').diff(date(reservation.fecha_entrada, 'UTC')).days }} noches</div>
+                    {% set nights = date(reservation.fecha_salida, 'UTC').diff(date(reservation.fecha_entrada, 'UTC')).days %}
+                    <div class="night-count">{{ nights }} {{ nights == 1 ? 'noche' : 'noches' }}</div>
                 </div>
                 <div class="detail-total">
                     <span>Importe total</span>
@@ -62,7 +65,7 @@
                     {% for event in reservation.eventos %}
                         <li class="timeline-{{ event.tipo }}">
                             <span class="timeline-dot" aria-hidden="true"></span>
-                            <strong>{{ event.tipo == 'creada' ? 'Reserva creada' : (event.tipo == 'confirmada' ? 'Reserva confirmada' : 'Reserva cancelada') }}</strong>
+                            <strong>{{ event.tipo == 'creada' ? 'Reserva creada' : (event.tipo == 'confirmada' ? 'Reserva confirmada' : (event.tipo == 'actualizada' ? 'Datos actualizados' : 'Reserva cancelada')) }}</strong>
                             <p>{{ event.descripcion }}</p>
                             <time datetime="{{ event.fecha_creacion }}">{{ event.fecha_creacion|date('d/m/Y · H:i') }}</time>
                         </li>
@@ -83,3 +86,4 @@
     </div>
 </section>
 {% endblock %}
+{% block dialogs %}{% include 'reservations/_create.html.twig' %}{% endblock %}
