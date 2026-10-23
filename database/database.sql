@@ -28,7 +28,7 @@ CREATE TABLE reserva (
 CREATE TABLE reserva_evento (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     reserva_id INT UNSIGNED NOT NULL,
-    tipo ENUM('creada', 'confirmada', 'cancelada') NOT NULL,
+    tipo ENUM('creada', 'confirmada', 'cancelada', 'actualizada') NOT NULL,
     descripcion VARCHAR(255) NOT NULL,
     fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),

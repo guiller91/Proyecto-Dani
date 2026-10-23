@@ -49,8 +49,11 @@ final readonly class Kernel
             $path === '/', $path === '/reservas' => ['GET'],
             $path === '/api/session' => ['GET'],
             $path === '/api/reservas' => ['GET', 'POST'],
+            $path === '/api/reservas/lote' => ['POST'],
+            in_array($path, ['/api/overview', '/api/agenda', '/api/reservas/exportar'], true) => ['GET'],
             (bool) preg_match('#^/api/reservas/[1-9]\d{0,9}/estado$#D', $path) => ['PATCH'],
-            (bool) preg_match('#^/(api/)?reservas/[1-9]\d{0,9}$#D', $path) => ['GET'],
+            (bool) preg_match('#^/api/reservas/[1-9]\d{0,9}$#D', $path) => ['GET', 'PATCH'],
+            (bool) preg_match('#^/reservas/[1-9]\d{0,9}$#D', $path) => ['GET'],
             default => throw new HttpException(404, 'No encontramos esta página o recurso.'),
         };
         if (!in_array($method, $allowed, true)) {
@@ -68,12 +71,27 @@ final readonly class Kernel
         if ($path === '/api/reservas') {
             return $method === 'GET' ? $this->controller->listing($request) : $this->controller->create($request);
         }
+        if ($path === '/api/reservas/lote') {
+            return $this->controller->bulkStatus($request);
+        }
+        if ($path === '/api/overview') {
+            return $this->controller->overview();
+        }
+        if ($path === '/api/agenda') {
+            return $this->controller->agenda($request);
+        }
+        if ($path === '/api/reservas/exportar') {
+            return $this->controller->export($request);
+        }
         if (!preg_match('#/reservas/(\d+)#', $path, $matches)) {
             throw new HttpException(404, 'No encontramos esta reserva.');
         }
         $id = (int) $matches[1];
         if (str_ends_with($path, '/estado')) {
             return $this->controller->changeStatus($id, $request);
+        }
+        if ($method === 'PATCH') {
+            return $this->controller->update($id, $request);
         }
         return str_starts_with($path, '/api/') ? $this->controller->detail($id) : $this->controller->detailPage($id);
     }

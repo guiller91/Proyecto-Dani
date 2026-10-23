@@ -16,6 +16,7 @@ final readonly class ReservationController
         private ReservationRepository $repository,
         private ReservationService $service,
         private Environment $twig,
+        private string $today,
     ) {
     }
 
@@ -40,12 +41,45 @@ final readonly class ReservationController
         return Response::json(['data' => $this->service->changeStatus($id, $request->json())]);
     }
 
+    public function update(int $id, Request $request): Response
+    {
+        return Response::json(['data' => $this->service->update($id, $request->json())]);
+    }
+
+    public function bulkStatus(Request $request): Response
+    {
+        return Response::json($this->service->bulkStatus($request->json()));
+    }
+
+    public function overview(): Response
+    {
+        return Response::json(['data' => $this->repository->overview($this->today), 'today' => $this->today,
+            'accommodations' => $this->repository->accommodations()]);
+    }
+
+    public function export(Request $request): Response
+    {
+        return CsvExport::response($this->repository->export(ReservationFilter::fromQuery($request->query)));
+    }
+
+    public function agenda(Request $request): Response
+    {
+        $from = $request->query['desde'] ?? $this->today;
+        $to = $request->query['hasta'] ?? (new \DateTimeImmutable($this->today))->modify('+6 days')->format('Y-m-d');
+        if (!is_string($from) || !is_string($to) || !ReservationInput::validDate($from) || !ReservationInput::validDate($to)
+            || $to < $from || (new \DateTimeImmutable($from))->diff(new \DateTimeImmutable($to))->days > 30) {
+            throw new HttpException(400, 'Selecciona un intervalo de agenda válido de hasta 31 días.');
+        }
+        return Response::json($this->repository->agenda($from, $to));
+    }
+
     public function indexPage(Request $request): Response
     {
         $filter = ReservationFilter::fromQuery($request->query);
         return new Response($this->twig->render(
             'reservations/index.html.twig',
-            $this->repository->listing($filter) + ['filters' => $filter]
+            $this->repository->listing($filter) + ['filters' => $filter, 'overview' => $this->repository->overview($this->today),
+                'accommodations' => $this->repository->accommodations(), 'initial_view' => ($request->query['vista'] ?? '') === 'agenda' ? 'agenda' : 'list']
         ));
     }
 

@@ -24,8 +24,10 @@ final class Application
         $twig->getExtension(CoreExtension::class)->setTimezone($config->timezone);
         $twig->addGlobal('csrf_token', $token);
         $twig->addGlobal('app_timezone', $config->timezone);
+        $today = (new \DateTimeImmutable('now', new \DateTimeZone($config->timezone)))->format('Y-m-d');
+        $twig->addGlobal('app_today', $today);
         $pdo = Database::connect($config);
         $repository = new ReservationRepository($pdo);
-        return new Kernel(new ReservationController($repository, new ReservationService($pdo, $repository), $twig), $twig, $token);
+        return new Kernel(new ReservationController($repository, new ReservationService($pdo, $repository), $twig, $today), $twig, $token);
     }
 }

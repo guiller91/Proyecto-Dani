@@ -15,6 +15,10 @@ final readonly class ReservationFilter
         public string $search = '',
         public int $page = 1,
         public int $perPage = 10,
+        public string $accommodation = '',
+        public string $sort = 'recientes',
+        public string $arrival = '',
+        public string $departure = '',
     ) {
     }
 
@@ -36,11 +40,21 @@ final readonly class ReservationFilter
         $search = $read('q');
         $page = $read('page');
         $perPage = $read('per_page');
+        $accommodation = $read('alojamiento');
+        $sort = $read('orden') ?: 'recientes';
+        $arrival = $read('entrada');
+        $departure = $read('salida');
+        if (!in_array($sort, ['recientes', 'entrada', 'salida', 'importe_desc', 'huesped'], true)) {
+            $errors['orden'] = 'Orden no válido.';
+        }
+        if (mb_strlen($accommodation) > 160 || !mb_check_encoding($accommodation, 'UTF-8')) {
+            $errors['alojamiento'] = 'El alojamiento admite hasta 160 caracteres UTF-8.';
+        }
         $status = ReservationStatus::tryFrom($state);
         if ($state !== '' && $status === null) {
             $errors['estado'] = 'Estado no válido.';
         }
-        foreach (['desde' => $from, 'hasta' => $to] as $key => $value) {
+        foreach (['desde' => $from, 'hasta' => $to, 'entrada' => $arrival, 'salida' => $departure] as $key => $value) {
             if ($value !== '' && !ReservationInput::validDate($value)) {
                 $errors[$key] = 'Introduce una fecha válida.';
             }
@@ -59,6 +73,17 @@ final readonly class ReservationFilter
         if ($errors !== []) {
             throw new HttpException(400, 'Revisa los filtros.', $errors);
         }
-        return new self($status, $from, $to, $search, $page === '' ? 1 : (int) $page, $perPage === '' ? 10 : (int) $perPage);
+        return new self(
+            $status,
+            $from,
+            $to,
+            $search,
+            $page === '' ? 1 : (int) $page,
+            $perPage === '' ? 10 : (int) $perPage,
+            $accommodation,
+            $sort,
+            $arrival,
+            $departure
+        );
     }
 }
